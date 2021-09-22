@@ -8,7 +8,7 @@ const Chat = () => {
 
     return (
         <div>
-            Chat {JSON.stringify(user)}
+            <h3>Chat <br /> {JSON.stringify(user)}</h3>
             <Link to={'/'}>
                 <button>go to Home</button>
             </Link>
