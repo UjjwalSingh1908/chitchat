@@ -14,7 +14,7 @@ function App() {
       <Navbar />
     <UserContext.Provider value={{user, setUser }} >
     <Switch>
-    <Route exact path="/chat"  component={Chat} />
+    <Route exact path="/chat/:room_id/:room_name"  component={Chat} />
       <Route path="/" component={Home } />
     </Switch>
     </UserContext.Provider>

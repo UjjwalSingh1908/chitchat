@@ -6,10 +6,12 @@ import io from 'socket.io-client';
 let socket;
 const Home = () => {
     const ENDPT = 'localhost:5000';
+
     const { user, setUser } = useContext(UserContext)
     const [room, setRoom] = useState('')
 
     useEffect(() => {
+
         socket = io(ENDPT);
         return () => {
             socket.emit('disconnect');
@@ -49,7 +51,7 @@ const Home = () => {
 
     const submitHandler = (e) => {
         e.preventDefault();
-        socket.emit('createRoom', room)
+        socket.emit('create-room', room);
         console.log(room);
         setRoom('')
     }
