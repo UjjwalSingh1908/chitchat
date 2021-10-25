@@ -17,7 +17,8 @@ var corsOptions = {
 app.use(cors(corsOptions));
 
 
-const { addUser } = require('./helper')
+const { addUser, getUser, removeUser } = require('./helper');
+const { Socket } = require('dgram');
 io.on('connection', (socket) => {
       console.log(socket.id);
         socket.on('create-room', name => {
@@ -31,10 +32,26 @@ io.on('connection', (socket) => {
                 room_id,
                 user_id,
             })
+            socket.join(room_id);
             if(error)
         console.log('join error', error)
         else
         console.log('join user', user)
+        })
+        socket.on('sendMessage', (message, room_id, callback)=>{
+            const user = getUser(socket.id);
+            const msgToStore={
+                name: user.name,
+                user_id: user.user_id,
+                room_id,
+                text: message
+            }
+            console.log('msg', msgToStore);
+            io.to(room_id).emit('message', msgToStore);
+            callback()
+        });
+        socket.on('disconnect',()=> {
+            const user = removeUser(socket.id)
         })
         
     });
