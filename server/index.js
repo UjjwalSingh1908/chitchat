@@ -3,6 +3,11 @@ const app = express();
 
 const http = require('http');
 const server = http.createServer(app);
+const mongoose = require('mongoose');
+
+
+const mongoDB =  "mongodb+srv://ujjwal:Ujjwal%401234@cluster0.s9kt7.mongodb.net/chat-database?retryWrites=true&w=majority"
+mongoose.connect(mongoDB,{useNewUrlParser: true, useUnifiedTopology: true}).then(()=> console.log('connected bro!')).catch(err=>console.log(err));
 
 const socketio = require("socket.io");
 const io = socketio(server);
@@ -16,6 +21,7 @@ var corsOptions = {
 }
 app.use(cors(corsOptions));
 
+const Room = require('./models/Room');
 
 const { addUser, getUser, removeUser } = require('./helper');
 const { Socket } = require('dgram');
@@ -23,7 +29,11 @@ io.on('connection', (socket) => {
       console.log(socket.id);
         socket.on('create-room', name => {
         
-            console.log('the room name is ', name);
+            // console.log('the room name is ', name);
+            const room = new Room({name});
+            room.save().then(result=> {
+                io.emit('room-created', result)
+            })
         })
         socket.on('join', ({name, room_id, user_id}) => {
             const {error, user} = addUser({
