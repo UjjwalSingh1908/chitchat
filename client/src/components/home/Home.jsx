@@ -30,9 +30,11 @@ const Home = () => {
     }, [rooms])
 
     useEffect(() => {
-        console.log(rooms);
+        socket.on('output-rooms', rooms => {
+            setRooms(rooms)
+        })
 
-    }, [rooms])
+    }, [])
     const setAsJohn = () => {
         const john = {
             name: 'John',

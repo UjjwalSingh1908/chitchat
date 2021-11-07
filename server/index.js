@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 
 
 const mongoDB =  "mongodb+srv://ujjwal:Ujjwal%401234@cluster0.s9kt7.mongodb.net/chat-database?retryWrites=true&w=majority"
-mongoose.connect(mongoDB,{useNewUrlParser: true, useUnifiedTopology: true}).then(()=> console.log('connected bro!')).catch(err=>console.log(err));
+mongoose.connect(mongoDB,{useNewUrlParser: true, useUnifiedTopology: true}).then(()=> console.log('db connected bro!')).catch(err=>console.log(err));
 
 const socketio = require("socket.io");
 const io = socketio(server);
@@ -22,11 +22,17 @@ var corsOptions = {
 app.use(cors(corsOptions));
 
 const Room = require('./models/Room');
+const Message = require('./models/Message');
+
 
 const { addUser, getUser, removeUser } = require('./helper');
 const { Socket } = require('dgram');
 io.on('connection', (socket) => {
       console.log(socket.id);
+      Room.find().then(result=> {
+        //   console.log('output-rooms', result);
+          socket.emit('output-rooms',result);
+      })
         socket.on('create-room', name => {
         
             // console.log('the room name is ', name);
@@ -56,9 +62,13 @@ io.on('connection', (socket) => {
                 room_id,
                 text: message
             }
-            console.log('msg', msgToStore);
-            io.to(room_id).emit('message', msgToStore);
+            // console.log('msg', msgToStore);
+            const msg = new Message(msgToStore);
+            msg.save().then(result=> {
+                io.to(room_id).emit('message', result);
             callback()
+            })
+            
         });
         socket.on('disconnect',()=> {
             const user = removeUser(socket.id)
