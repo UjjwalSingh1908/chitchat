@@ -1,12 +1,16 @@
 const express = require('express');
 const app = express();
+app.use(express.json());
+const authRoutes = require('./routes/authRoutes');
+app.use(authRoutes);
+
 
 const http = require('http');
 const server = http.createServer(app);
 const mongoose = require('mongoose');
 
 
-const mongoDB =  "mongodb+srv://ujjwal:Ujjwal%401234@cluster0.s9kt7.mongodb.net/chat-database?retryWrites=true&w=majority"
+const mongoDB =  "mongodb+srv://ujjwal:Ujjwal%401234@cluster0.s9kt7.mongodb.net/chat-database?retryWrites=true&w=majority";
 mongoose.connect(mongoDB,{useNewUrlParser: true, useUnifiedTopology: true}).then(()=> console.log('db connected bro!')).catch(err=>console.log(err));
 
 const socketio = require("socket.io");
@@ -20,6 +24,7 @@ var corsOptions = {
     optionsSuccessStatus: 200 // For legacy browser support
 }
 app.use(cors(corsOptions));
+
 
 const Room = require('./models/Room');
 const Message = require('./models/Message');
@@ -70,6 +75,12 @@ io.on('connection', (socket) => {
             })
             
         });
+
+        socket.on('get-messages-history', room_id => {
+            Message.find({ room_id }).then(result => {
+                socket.emit('output-messages', result)
+            })
+        })
         socket.on('disconnect',()=> {
             const user = removeUser(socket.id)
         })
