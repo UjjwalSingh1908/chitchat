@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../UserContext';
-import { Link, useParams } from 'react-router-dom';
+import { Redirect, useParams } from 'react-router-dom';
 import io from 'socket.io-client';
 import Messages from './messages/Messages';
 import Input from './input/Input';
@@ -15,7 +15,7 @@ const Chat = () => {
     const [messages, setMessages] = useState([]);
     useEffect(() => {
         socket = io(ENDPT);
-        socket.emit('join', { name: user.name, room_id, user_id: user.id })
+        socket.emit('join', { name: user.name, room_id, user_id: user._id })
     }, [])
     useEffect(() => {
         socket.on('message', message => {
@@ -36,10 +36,13 @@ const Chat = () => {
             socket.emit('sendMessage', message, room_id, () => setMessage(''))
         }
     }
+    if (!user) {
+        return <Redirect to="/" />
+    }
     return (
         <div className="outerContainer">
             <div className="container">
-                <Messages messages={messages} user_id={user.id} />
+                <Messages messages={messages} user_id={user._id} />
                 <Input
                     message={message}
                     setMessage={setMessage}
